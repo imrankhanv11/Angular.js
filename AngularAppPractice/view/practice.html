@@ -1,0 +1,10 @@
+<div ng-controller="PracticeController">
+    <h2>Practice</h2>
+    <h2>{{ msg }}</h2>
+    <ul>
+        <li ng-repeat="user in users">
+            {{ user.name }} - {{ user.role }}
+        </li>
+    </ul>
+    <practice-Use></practice-Use>
+</div>
