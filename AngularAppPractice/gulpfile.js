@@ -20,7 +20,10 @@ gulp.task('scripts', function () {
 });
 
 gulp.task('watch', function () {
-    gulp.watch(['app.js', 'controller/**/*.js', 'component/**/**/*.js', 'service/**/*.js'], gulp.series('scripts'));
+    gulp.watch(['app.js',
+        'controller/**/*.js',
+        'component/**/**/*.js',
+        'service/**/*.js'], gulp.series('scripts'));
 });
 
 gulp.task('default', gulp.series('scripts', 'watch'));
