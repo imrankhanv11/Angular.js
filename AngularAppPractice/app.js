@@ -17,7 +17,10 @@ angular.module('myApp', ['ngRoute'])
             .when('/practice', {
                 templateUrl: 'view/practice.html',
                 controller: 'PracticeController',
-                // controllerAs: 'pc'
+            })
+            .when('/form', {
+                templateUrl: 'view/form.html',
+                controller: 'FormController'
             })
             .otherwise({
                 redirectTo: '/'

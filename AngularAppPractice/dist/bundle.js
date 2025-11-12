@@ -17,7 +17,10 @@ angular.module('myApp', ['ngRoute'])
             .when('/practice', {
                 templateUrl: 'view/practice.html',
                 controller: 'PracticeController',
-                // controllerAs: 'pc'
+            })
+            .when('/form', {
+                templateUrl: 'view/form.html',
+                controller: 'FormController'
             })
             .otherwise({
                 redirectTo: '/'
@@ -59,6 +62,18 @@ angular.module('myApp', ['ngRoute'])
                 $scope.books = data;
             });
         };
+    }
+})();
+(function () {
+    'use strict';
+
+    angular
+        .module('myApp')
+        .controller('FormController', FormControllerMethod);
+
+    FormControllerMethod.$inject = [];
+    function FormControllerMethod() {
+        
     }
 })();
 angular.module('myApp').controller('HomeController', function ($scope) {

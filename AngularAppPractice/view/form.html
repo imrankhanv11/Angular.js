@@ -1,0 +1,25 @@
+<div>
+    <div>
+        <form class="container my-2 border rounded-2 p-2" name="userForm">
+            <h3 class="text-center text-info">Form</h3>
+
+            <div class="mt-2">
+                <label for="username" class="form-label">User Name :</label>
+                <input type="text" name="username" ng-model="user.name" required ng-minlength="3" ng-maxlength="10"
+                    class="form-control form-control-sm" id="username" />
+
+                <div style="color:red">
+                    <span ng-show="userForm.username.$touched && userForm.username.$error.required">
+                        Username is required.
+                    </span>
+                    <span ng-show="userForm.username.$touched && userForm.username.$error.minlength">
+                        Username must be at least 3 characters.
+                    </span>
+                    <span ng-show="userForm.username.$touched && userForm.username.$error.maxlength">
+                        Username cannot be more than 10 characters.
+                    </span>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
