@@ -5,5 +5,9 @@
     "gulp-ng-annotate": "^2.1.0",
     "gulp-rename": "^2.1.0",
     "gulp-uglify": "^3.0.2"
+  },
+  "dependencies": {
+    "sweetalert2": "^11.26.3",
+    "zod": "^4.1.12"
   }
 }

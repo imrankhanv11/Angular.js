@@ -7,7 +7,9 @@ const ngAnnotate = require('gulp-ng-annotate');
 gulp.task('scripts', function () {
     return gulp.src([
         'main.js',
-        './app/controller/**/**.js'
+        './app/controller/**/**.js',
+        './app/service/**.js',
+        './app/api/**.js'
     ])
         .pipe(concat('bundle.js'))
         .pipe(gulp.dest('dist'))
@@ -18,8 +20,11 @@ gulp.task('scripts', function () {
 });
 
 gulp.task('watch', function () {
-    gulp.watch(['main.js'
-        , './app/controller/**/**.js'], gulp.series('scripts'));
+    gulp.watch([
+        'main.js',
+        './app/controller/**/**.js',
+        './app/service/**.js',
+        './app/api/**.js'], gulp.series('scripts'));
 });
 
 gulp.task('default', gulp.series('scripts', 'watch'));
