@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "gulp": "^5.0.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-ng-annotate": "^2.1.0",
+    "gulp-rename": "^2.1.0",
+    "gulp-uglify": "^3.0.2"
+  }
+}
