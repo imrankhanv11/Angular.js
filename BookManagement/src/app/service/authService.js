@@ -1,18 +1,40 @@
-angular.module('myApp')
-    .service('authService', function ($window) {
-        this.saveToken = function (token) {
-            $window.localStorage.setItem('accessToken', token);
-        };
+(function () {
+    'use strict';
 
-        this.getToken = function () {
-            return $window.localStorage.getItem('accessToken');
-        };
+    angular
+        .module('myApp')
+        .service('authService', function ($http, $window) {
 
-        this.isAuthenticated = function () {
-            return !!this.getToken();
-        };
+            const baseUrl = 'http://localhost:5007/api';
 
-        this.logout = function () {
-            $window.localStorage.removeItem('accessToken');
-        };
-    });
+            this.login = function (credentials) {
+                return $http.post(`${baseUrl}/Login/LoginUser`, credentials)
+                    .then(function (response) {
+                        if (response.data) {
+                            $window.localStorage.setItem('accessToken', response.data.accessToken);
+                        }
+                        return response.data;
+                    })
+                    .catch(function (error) {
+                        console.error('Login failed:', error);
+                        throw error;
+                    });
+            };
+
+            this.saveToken = function (token) {
+                $window.localStorage.setItem('accessToken', token);
+            };
+
+            this.getToken = function () {
+                return $window.localStorage.getItem('accessToken');
+            };
+
+            this.isAuthenticated = function () {
+                return !!this.getToken();
+            };
+
+            this.logout = function () {
+                $window.localStorage.removeItem('accessToken');
+            };
+        });
+})();

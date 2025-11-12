@@ -4,15 +4,15 @@
             <h2 class="text-info-emphasis text-center">Login</h2>
 
             <div class="mt-2">
-                <label for="username" class="form-label">User Name:</label>
-                <input type="text" class="form-control" id="username" name="username" ng-model="vm.user.username"
+                <label for="userName" class="form-label">User Name:</label>
+                <input type="text" class="form-control" id="userName" name="userName" ng-model="vm.user.userName"
                     ng-minlength="3" ng-maxlength="15" required
-                    ng-class="{'is-invalid': vm.loginForm.username.$touched && vm.loginForm.username.$invalid}" />
+                    ng-class="{'is-invalid': vm.loginForm.userName.$touched && vm.loginForm.userName.$invalid}" />
 
-                <div class="text-danger mt-1" ng-if="vm.loginForm.username.$touched && vm.loginForm.username.$invalid">
-                    <small ng-if="vm.loginForm.username.$error.required">Username is required</small>
-                    <small ng-if="vm.loginForm.username.$error.minlength">Username must be at least 3 characters</small>
-                    <small ng-if="vm.loginForm.username.$error.maxlength">Username cannot exceed 15 characters</small>
+                <div class="text-danger mt-1" ng-if="vm.loginForm.userName.$touched && vm.loginForm.userName.$invalid">
+                    <small ng-if="vm.loginForm.userName.$error.required">userName is required</small>
+                    <small ng-if="vm.loginForm.userName.$error.minlength">userName must be at least 3 characters</small>
+                    <small ng-if="vm.loginForm.userName.$error.maxlength">userName cannot exceed 15 characters</small>
                 </div>
             </div>
 

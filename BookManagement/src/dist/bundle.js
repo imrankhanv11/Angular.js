@@ -3,11 +3,13 @@ angular.module('myApp', ['ngRoute'])
         $routeProvider
             .when('/', {
                 templateUrl: 'app/view/home.html',
-                controller: 'HomeController'
+                controller: 'HomeController',
+                controllerAs: 'vm'
             })
             .when('/login', {
                 templateUrl: 'app/view/login.html',
-                controller: 'LoginController'
+                controller: 'LoginController',
+                controllerAs: 'vm'
             })
             .otherwise({
                 redirectTo: '/'
@@ -30,59 +32,81 @@ angular.module('myApp', ['ngRoute'])
 (function () {
     'use strict';
 
-    // const Swal = require('sweetalert2');
-
     angular
         .module('myApp')
         .controller('LoginController', LoginController);
 
-    LoginController.$inject = ['$window'];
+    LoginController.$inject = ['$location', 'authService'];
 
-    function LoginController($window) {
+    function LoginController($location, authService) {
         var vm = this;
 
         vm.user = {
-            username: '',
+            userName: '',
             password: ''
         };
 
         vm.login = function () {
-            if (vm.loginForm) {
+            if (vm.loginForm && vm.loginForm.$invalid) {
                 angular.forEach(vm.loginForm, function (field, fieldName) {
                     if (fieldName[0] !== '$' && field.$setTouched) {
                         field.$setTouched();
                     }
                 });
+                return;
             }
 
-            if (vm.loginForm.$valid) {
-                alert("Login Succesfully");
-
-            } else {
-                console.warn('Form invalid!');
-            }
+            authService.login(vm.user)
+                .then(function () {
+                    $location.path('/');
+                })
+                .catch(function (error) {
+                    console.error(error);
+                });
         };
     }
 })();
 
-angular.module('myApp')
-    .service('authService', function ($window) {
-        this.saveToken = function (token) {
-            $window.localStorage.setItem('accessToken', token);
-        };
+(function () {
+    'use strict';
 
-        this.getToken = function () {
-            return $window.localStorage.getItem('accessToken');
-        };
+    angular
+        .module('myApp')
+        .service('authService', function ($http, $window) {
 
-        this.isAuthenticated = function () {
-            return !!this.getToken();
-        };
+            const baseUrl = 'http://localhost:5007/api';
 
-        this.logout = function () {
-            $window.localStorage.removeItem('accessToken');
-        };
-    });
+            this.login = function (credentials) {
+                return $http.post(`${baseUrl}/Login/LoginUser`, credentials)
+                    .then(function (response) {
+                        if (response.data) {
+                            $window.localStorage.setItem('accessToken', response.data.accessToken);
+                        }
+                        return response.data;
+                    })
+                    .catch(function (error) {
+                        console.error('Login failed:', error);
+                        throw error;
+                    });
+            };
+
+            this.saveToken = function (token) {
+                $window.localStorage.setItem('accessToken', token);
+            };
+
+            this.getToken = function () {
+                return $window.localStorage.getItem('accessToken');
+            };
+
+            this.isAuthenticated = function () {
+                return !!this.getToken();
+            };
+
+            this.logout = function () {
+                $window.localStorage.removeItem('accessToken');
+            };
+        });
+})();
 
 (function () {
     'use strict';

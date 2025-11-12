@@ -1,37 +1,37 @@
 (function () {
     'use strict';
 
-    // const Swal = require('sweetalert2');
-
     angular
         .module('myApp')
         .controller('LoginController', LoginController);
 
-    LoginController.$inject = ['$window'];
+    LoginController.$inject = ['$location', 'authService'];
 
-    function LoginController($window) {
+    function LoginController($location, authService) {
         var vm = this;
 
         vm.user = {
-            username: '',
+            userName: '',
             password: ''
         };
 
         vm.login = function () {
-            if (vm.loginForm) {
+            if (vm.loginForm && vm.loginForm.$invalid) {
                 angular.forEach(vm.loginForm, function (field, fieldName) {
                     if (fieldName[0] !== '$' && field.$setTouched) {
                         field.$setTouched();
                     }
                 });
+                return;
             }
 
-            if (vm.loginForm.$valid) {
-                alert("Login Succesfully");
-
-            } else {
-                console.warn('Form invalid!');
-            }
+            authService.login(vm.user)
+                .then(function () {
+                    $location.path('/');
+                })
+                .catch(function (error) {
+                    console.error(error);
+                });
         };
     }
 })();
