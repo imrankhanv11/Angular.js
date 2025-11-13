@@ -7,7 +7,6 @@
 
     bookService.$inject = ['$http'];
     function bookService($http) {
-        const baseUrl = 'http://localhost:5007/api';
 
         var state = {
             books: []
@@ -15,8 +14,10 @@
 
         this.state = state;
 
+        const baseUrl = `http://localhost:5007/api/`;
+
         this.getBooks = function () {
-            return $http.get(`${baseUrl}/Books/GellAllBooks`)
+            return $http.get(`${baseUrl}Books/GellAllBooks`)
                 .then((response) => {
                     state.books = response.data;
                     return state.books;
@@ -28,7 +29,7 @@
         };
 
         this.deleteBook = function (id) {
-            return $http.delete(`${baseUrl}/Books/DeleteBook/${id}`)
+            return $http.delete(`${baseUrl}Books/DeleteBook/${id}`)
                 .then(() => {
                     state.books = state.books.filter(book => book.bookId !== id);
                     return state.books;
@@ -40,7 +41,7 @@
         };
 
         this.addBook = function (data) {
-            return $http.post(`${baseUrl}/Books/Addbook`, data)
+            return $http.post(`${baseUrl}Books/AddBook`, data)
                 .then(() => {
                     state.books.push(data);
                     return state.books;

@@ -28,7 +28,8 @@
             }
 
             authService.login(vm.user)
-                .then(function () {
+                .then(function (data) {
+                    console.log('dfjkl  ');
                     $location.path('/');
                     vm.error = '';
                 })
