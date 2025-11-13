@@ -11,6 +11,11 @@ angular.module('myApp', ['ngRoute'])
                 controller: 'LoginController',
                 controllerAs: 'vm'
             })
+            .when('/addbook',{
+                templateUrl: 'app/view/bookAdd.html',
+                controller: 'BookAddController',
+                // controllerAs: '$ctrl'
+            })
             .otherwise({
                 redirectTo: '/'
             });

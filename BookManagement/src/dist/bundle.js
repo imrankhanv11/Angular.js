@@ -11,6 +11,11 @@ angular.module('myApp', ['ngRoute'])
                 controller: 'LoginController',
                 controllerAs: 'vm'
             })
+            .when('/addbook',{
+                templateUrl: 'app/view/bookAdd.html',
+                controller: 'BookAddController',
+                // controllerAs: '$ctrl'
+            })
             .otherwise({
                 redirectTo: '/'
             });
@@ -18,6 +23,51 @@ angular.module('myApp', ['ngRoute'])
         $httpProvider.interceptors.push('authInterceptor');
     });
 
+(function () {
+    'use strict';
+
+    angular
+        .module('myApp')
+        .controller('BookAddController', BookAddController);
+
+    BookAddController.$inject = ['$http', 'bookService','$location'];
+    function BookAddController($http, bookService, $location) {
+        var vm = this;
+
+        vm.book = {
+            title: '',
+            author: '',
+            price: '',
+            stock: '',
+            categoryId: ''
+        };
+
+        vm.error = '';
+        vm.category = [];
+
+        $http.get(`http://localhost:5007/api/Categorys/GetAllCategory`)
+            .then((response) => {
+                vm.category = response.data;
+            });
+
+        vm.AddBook = function () {
+            if (vm.addBookForm && vm.addBookForm.$invalid) {
+                angular.forEach(vm.addBookForm, function (field, fieldName) {
+                    if (fieldName[0] !== '$' && field.$setTouched) {
+                        field.$setTouched();
+                    }
+                });
+                return;
+            }
+
+            bookService.addBook(vm.book)
+                .then(() => {
+                    $location.path('/');
+                })
+                .catch((error) => console.log(error));
+        };
+    }
+})();
 (function () {
     'use strict';
 
@@ -180,6 +230,18 @@ angular.module('myApp', ['ngRoute'])
                     console.error('Error deleting book:', error);
                     throw error;
                 });
+        };
+
+        this.addBook = function (data) {
+            return $http.post(`${baseUrl}/Books/Addbook`, data)
+                .then(() => {
+                    state.books.push(data);
+                    return state.books;
+                })
+                .catch((error) => {
+                    console.error("Error at Adding", error);
+                    throw error;
+                })
         };
     }
 })();

@@ -21,6 +21,10 @@
                     <a class="nav-link" href="#!/login">Login</a>
                 </li>
 
+                <li class="nav-item" ng-if="nav.isLoggedIn()">
+                    <a class="nav-link" href="#!/addbook">Add Book</a>
+                </li>
+
                 <!-- Only show Logout when logged in -->
                 <li class="nav-item" ng-if="nav.isLoggedIn()">
                     <button ng-click="nav.logout()" class="btn btn-danger btn-sm">LogOut</button>

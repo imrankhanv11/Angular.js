@@ -1,0 +1,90 @@
+<div ng-controller="BookAddController as vm">
+    <div class="d-flex justify-content-center my-5">
+        <div class="card shadow-lg" style="width: 500px;">
+
+            <form name="vm.addBookForm" ng-submit="vm.AddBook()" novalidate class="p-3">
+                <h2 class="text-success-emphasis text-center">ADD BOOK</h2>
+
+                <div class="mt-2">
+                    <label for="title" class="form-label">Title:</label>
+                    <input type="text" class="form-control" id="title" name="title" ng-model="vm.book.title"
+                        ng-minlength="2" ng-maxlength="20" required
+                        ng-class="{'is-invalid': vm.addBookForm.title.$touched && vm.addBookForm.title.$invalid}" />
+
+                    <div class="text-danger mt-1"
+                        ng-if="vm.addBookForm.title.$touched && vm.addBookForm.title.$invalid">
+                        <small ng-if="vm.addBookForm.title.$error.required">title is required</small>
+                        <small ng-if="vm.addBookForm.title.$error.minlength">title must be at least 2
+                            characters</small>
+                        <small ng-if="vm.addBookForm.title.$error.maxlength">title cannot exceed 20
+                            characters</small>
+                    </div>
+                </div>
+
+                <div class="mt-2">
+                    <label for="author" class="form-label">author:</label>
+                    <input type="text" class="form-control" id="author" name="author" ng-model="vm.book.author"
+                        ng-minlength="2" ng-maxlength="20" required
+                        ng-class="{'is-invalid': vm.addBookForm.author.$touched && vm.addBookForm.author.$invalid}" />
+
+                    <div class="text-danger mt-1"
+                        ng-if="vm.addBookForm.author.$touched && vm.addBookForm.author.$invalid">
+                        <small ng-if="vm.addBookForm.author.$error.required">author is required</small>
+                        <small ng-if="vm.addBookForm.author.$error.minlength">author must be at least 2
+                            characters</small>
+                        <small ng-if="vm.addBookForm.author.$error.maxlength">author cannot exceed 20
+                            characters</small>
+                    </div>
+                </div>
+
+                <div class="mt-2">
+                    <label for="price" class="form-label">Price:</label>
+                    <input type="number" class="form-control" id="price" name="price" ng-model="vm.book.price" min="1"
+                        required
+                        ng-class="{'is-invalid': vm.addBookForm.price.$touched && vm.addBookForm.price.$invalid}" />
+
+                    <div class="text-danger mt-1"
+                        ng-if="vm.addBookForm.price.$touched && vm.addBookForm.price.$invalid">
+                        <small ng-if="vm.addBookForm.price.$error.required">price is required</small>
+                        <small ng-if="vm.addBookForm.price.$error.min">price must be at least above 0</small>
+                    </div>
+                </div>
+
+                <div class="mt-2">
+                    <label for="stock" class="form-label">Stock:</label>
+                    <input type="number" class="form-control" id="stock" name="stock" ng-model="vm.book.stock" min="1"
+                        required
+                        ng-class="{'is-invalid': vm.addBookForm.stock.$touched && vm.addBookForm.stock.$invalid}" />
+
+                    <div class="text-danger mt-1"
+                        ng-if="vm.addBookForm.stock.$touched && vm.addBookForm.stock.$invalid">
+                        <small ng-if="vm.addBookForm.stock.$error.required">stock is required</small>
+                        <small ng-if="vm.addBookForm.stock.$error.min">stock must be at least above 0</small>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <label for="category" class="form-label">Category:</label>
+
+                    <select class="form-select" id="category" name="category" ng-model="vm.book.categoryId"
+                        ng-options="cat.categoryId as cat.categoryName for cat in vm.category" required>
+                        <option value="">-- Select a Category --</option>
+                    </select>
+
+                    <div class="text-danger mt-1"
+                        ng-if="vm.addBookForm.category.$touched && vm.addBookForm.category.$invalid">
+                        <small ng-if="vm.addBookForm.category.$error.required">Category is required</small>
+                    </div>
+                </div>
+
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-success w-100">
+                        ADD
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>

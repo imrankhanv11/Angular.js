@@ -38,5 +38,17 @@
                     throw error;
                 });
         };
+
+        this.addBook = function (data) {
+            return $http.post(`${baseUrl}/Books/Addbook`, data)
+                .then(() => {
+                    state.books.push(data);
+                    return state.books;
+                })
+                .catch((error) => {
+                    console.error("Error at Adding", error);
+                    throw error;
+                })
+        };
     }
 })();
