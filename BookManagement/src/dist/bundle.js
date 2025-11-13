@@ -72,6 +72,27 @@ angular.module('myApp', ['ngRoute']);
 (function () {
   'use strict';
 
+  angular.module('myApp').controller('AdminBookController', AdminBookController);
+  AdminBookController.$inject = ['$scope', 'bookService'];
+  function AdminBookController($scope, bookService) {
+    $scope.books = [];
+    bookService.getBooks().then(function (data) {
+      $scope.books = data;
+    });
+    $scope.deleteBook = function (id) {
+      if (confirm("Do you Want to delete?")) {
+        bookService.deleteBook(id).then(function (data) {
+          $scope.books = data;
+        });
+      }
+    };
+  }
+})();
+"use strict";
+
+(function () {
+  'use strict';
+
   angular.module('myApp').controller('BookAddController', BookAddController);
   BookAddController.$inject = ['$http', 'bookService', '$location'];
   function BookAddController($http, bookService, $location) {
@@ -111,31 +132,8 @@ angular.module('myApp', ['ngRoute']);
   'use strict';
 
   angular.module('myApp').controller('HomeController', HomeController);
-  HomeController.$inject = ['authService', '$rootScope', '$scope', 'bookService'];
-  function HomeController(authService, $rootScope, $scope, bookService) {
-    $scope.books = [];
-    bookService.getBooks().then(function (data) {
-      $scope.books = data;
-    });
-    $scope.deleteBook = function (id) {
-      if (confirm("Do you Want to delete?")) {
-        bookService.deleteBook(id).then(function (data) {
-          $scope.books = data;
-        });
-      }
-    };
-    $scope.isLoggedIn = function () {
-      return authService.isAuthenticated();
-    };
-
-    // var deregister = $rootScope.$on('authChanged', function (event, status) {
-    //     home.loggedIn = status;
-    // });
-
-    // $scope.$on('$destroy', function () {
-    //     deregister();
-    // });
-  }
+  HomeController.$inject = [];
+  function HomeController() {}
 })();
 "use strict";
 
@@ -161,7 +159,6 @@ angular.module('myApp', ['ngRoute']);
         return;
       }
       authService.login(vm.user).then(function (data) {
-        console.log('dfjkl  ');
         $location.path('/');
         vm.error = '';
       })["catch"](function (error) {
@@ -173,8 +170,24 @@ angular.module('myApp', ['ngRoute']);
 })();
 "use strict";
 
+(function () {
+  'use strict';
+
+  angular.module('myApp').controller('UserBookController', UserBookController);
+  UserBookController.$inject = ['$scope', 'bookService'];
+  function UserBookController($scope, bookService) {
+    $scope.books = [];
+    bookService.getBooks().then(function (data) {
+      $scope.books = data;
+    });
+  }
+})();
+"use strict";
+
 angular.module('myApp').config(function ($routeProvider, $httpProvider) {
-  $routeProvider.when('/', {
+  $routeProvider
+  // public pages
+  .when('/', {
     templateUrl: 'app/view/home.html',
     controller: 'HomeController',
     controllerAs: 'vm'
@@ -182,11 +195,77 @@ angular.module('myApp').config(function ($routeProvider, $httpProvider) {
     templateUrl: 'app/view/login.html',
     controller: 'LoginController',
     controllerAs: 'vm'
+  })
+  // admin pages
+  .when('/adminbook', {
+    templateUrl: 'app/view/adminBookPage.html',
+    controller: 'AdminBookController',
+    controllerAs: 'vm',
+    resolve: {
+      auth: function auth($q, $location, authService, tokenService) {
+        if (!authService.isAuthenticated()) {
+          $location.path('/login');
+          return $q.reject('Not authenticated');
+        }
+        var decoded = tokenService.decode();
+        var role = decoded ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] : null;
+        if (role === 'SPAdmin' || role === 'Admin') {
+          return true;
+        } else {
+          $location.path('/unauthorized');
+          return $q.reject('Not authorized');
+        }
+      }
+    }
   }).when('/addbook', {
     templateUrl: 'app/view/bookAdd.html',
     controller: 'BookAddController',
-    controllerAs: 'vm'
-  }).otherwise({
+    controllerAs: 'vm',
+    resolve: {
+      auth: function auth($q, $location, authService, tokenService) {
+        if (!authService.isAuthenticated()) {
+          $location.path('/login');
+          return $q.reject('Not authenticated');
+        }
+        var decoded = tokenService.decode();
+        var role = decoded ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] : null;
+        if (role === 'SPAdmin' || role === 'Admin') {
+          return true;
+        } else {
+          $location.path('/unauthorized');
+          return $q.reject('Not authorized');
+        }
+      }
+    }
+  })
+  // use page
+  .when('/userbook', {
+    templateUrl: 'app/view/userBookPage.html',
+    controller: 'UserBookController',
+    controllerAs: 'vm',
+    resolve: {
+      auth: function auth($q, $location, authService, tokenService) {
+        if (!authService.isAuthenticated()) {
+          $location.path('/login');
+          return $q.reject('Not authenticated');
+        }
+        var decoded = tokenService.decode();
+        var role = decoded ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] : null;
+        if (role === 'User') {
+          return true;
+        } else {
+          $location.path('/unauthorized');
+          return $q.reject('Not authorized');
+        }
+      }
+    }
+  })
+  // unauthorized
+  .when('/unauthorized', {
+    templateUrl: 'app/view/unauthorized.html'
+  })
+  // not found
+  .otherwise({
     redirectTo: '/'
   });
   $httpProvider.interceptors.push('authInterceptor');
@@ -203,19 +282,13 @@ angular.module('myApp').config(function ($routeProvider, $httpProvider) {
         if (response.data) {
           $window.localStorage.setItem('accessToken', response.data.accessToken);
           $window.localStorage.setItem('refreshToken', response.data.refreshToken);
-          // $rootScope.$broadcast('authChanged', true);
+          $rootScope.$emit('loginSuccess');
         }
         return response.data;
       })["catch"](function (error) {
         throw error.data.message;
       });
     };
-
-    // this.saveToken = function (token) {
-    //     $window.localStorage.setItem('accessToken', token);
-    //     // $rootScope.$broadcast('authChanged', true);
-    // };
-
     this.getToken = function () {
       return $window.localStorage.getItem('accessToken');
     };
@@ -225,7 +298,7 @@ angular.module('myApp').config(function ($routeProvider, $httpProvider) {
     this.logout = function () {
       $window.localStorage.removeItem('accessToken');
       $window.localStorage.removeItem('refreshToken');
-      // $rootScope.$broadcast('authChanged', false);
+      $rootScope.$emit('logoutSuccess');
     };
   });
 })();
@@ -278,16 +351,92 @@ angular.module('myApp').config(function ($routeProvider, $httpProvider) {
 (function () {
   'use strict';
 
+  angular.module('myApp').factory('tokenService', tokenService);
+  tokenService.$inject = ['$window'];
+  function tokenService($window) {
+    return {
+      decode: function decode() {
+        var token = $window.localStorage.getItem('accessToken');
+        if (!token) return null;
+        try {
+          return jwt_decode(token);
+        } catch (err) {
+          console.error('Invalid token:', err);
+          return null;
+        }
+      }
+    };
+  }
+})();
+"use strict";
+
+(function () {
+  'use strict';
+
+  angular.module('myApp').component('heroSection', {
+    templateUrl: 'app/component/heroSection/hero.html',
+    controller: HeroController,
+    controllerAs: 'hero'
+  });
+  HeroController.$inject = ['$location'];
+  function HeroController($location) {
+    var hero = this;
+    hero.title = "Book Management System";
+    hero.subtitle = "Easily manage your books, add new titles, track availability, and keep everything organized.";
+    hero.ctaText = "Get Started";
+    hero.goToAddBook = function () {
+      $location.path('/addbook');
+    };
+  }
+})();
+"use strict";
+
+(function () {
+  'use strict';
+
+  angular.module('myApp').component('appFooter', {
+    templateUrl: 'app/layouts/footer/footer.html',
+    controller: FooterController
+  });
+  FooterController.$inject = [];
+  function FooterController() {}
+})();
+"use strict";
+
+(function () {
+  'use strict';
+
   angular.module('myApp').controller('NavbarController', NavbarController);
-  NavbarController.$inject = ['authService', '$location'];
-  function NavbarController(authService, $location) {
-    var nav4 = this;
-    nav4.isLoggedIn = function () {
+  NavbarController.$inject = ['authService', '$location', 'tokenService', '$rootScope'];
+  function NavbarController(authService, $location, tokenService, $rootScope) {
+    var nav = this;
+    nav.isLoggedIn = function () {
       return authService.isAuthenticated();
     };
-    nav4.logout = function () {
+    function updateRole() {
+      var decoded = tokenService.decode();
+      nav.role = decoded ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] : null;
+    }
+
+    // Listen to login/logout events
+    $rootScope.$on('loginSuccess', function () {
+      updateRole();
+    });
+    $rootScope.$on('logoutSuccess', function () {
+      nav.role = null;
+    });
+    nav.hasAdminAccess = function () {
+      return nav.isLoggedIn() && (nav.role === 'SPAdmin' || nav.role === 'Admin');
+    };
+    nav.hasUserAccess = function () {
+      return nav.isLoggedIn() && nav.role === 'User';
+    };
+    nav.logout = function () {
       authService.logout();
       $location.path('/login');
     };
+
+    // Initialize role on page load (refresh or initial load)
+    updateRole();
   }
 })();

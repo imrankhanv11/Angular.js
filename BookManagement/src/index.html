@@ -21,9 +21,13 @@
 </head>
 
 <body>
-    <div ng-include="'app/layouts/navbar/navbar.html'"></div>
-    <div ng-view></div>
+    <div class="d-flex flex-column min-vh-100">
+        <div ng-include="'app/layouts/navbar/navbar.html'"></div>
 
+        <div ng-view class="flex-fill"></div>
+
+        <app-footer class="mt-auto"></app-footer>
+    </div>
     <script src="dist/bundle.js"></script>
 
 </body>

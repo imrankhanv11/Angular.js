@@ -14,7 +14,7 @@
                         if (response.data) {
                             $window.localStorage.setItem('accessToken', response.data.accessToken);
                             $window.localStorage.setItem('refreshToken', response.data.refreshToken);
-                            // $rootScope.$broadcast('authChanged', true);
+                            $rootScope.$emit('loginSuccess');
                         }
                         return response.data;
                     })
@@ -22,11 +22,6 @@
                         throw error.data.message;
                     });
             };
-
-            // this.saveToken = function (token) {
-            //     $window.localStorage.setItem('accessToken', token);
-            //     // $rootScope.$broadcast('authChanged', true);
-            // };
 
             this.getToken = function () {
                 return $window.localStorage.getItem('accessToken');
@@ -39,7 +34,7 @@
             this.logout = function () {
                 $window.localStorage.removeItem('accessToken');
                 $window.localStorage.removeItem('refreshToken');
-                // $rootScope.$broadcast('authChanged', false);
+                $rootScope.$emit('logoutSuccess');
             };
         });
 })();

@@ -1,32 +1,77 @@
-<div class="container">
-    <h2>{{ message }}</h2>
+<div>
+    <hero-section></hero-section>
+    <div class="container my-5">
 
-    <h4>Books List</h4>
-    <table class="table table-bordered table-striped text-center">
-        <thead class="table-dark">
-            <tr>
-                <th>S.No.</th>
-                <th>Title</th>
-                <th>Author</th>
-                <th>Stock</th>
-                <th>Price</th>
-                <th ng-if="isLoggedIn()">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="book in books">
-                <td>{{$index + 1}}</td>
-                <td>{{ book.title }}</td>
-                <td>{{ book.author }}</td>
-                <td>{{book.stock}}</td>
-                <td>{{ book.price }}</td>
-                <td ng-if="isLoggedIn()">
-                    <div>
-                        <button class="btn btn-sm btn-danger rounded-4 text-black"
-                            ng-click="deleteBook(book.bookId)">Delete</button>
+        <div class="container my-5">
+
+            <!-- About Section -->
+            <section id="about" class="mb-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-8 text-center">
+                        <h2 class="display-5 fw-bold mb-3">About Book Management</h2>
+                        <p class="lead text-muted">
+                            This system allows you to add, update, and track your books easily.
+                            You can manage your library efficiently and stay organized.
+                        </p>
                     </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section id="features" class="mb-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-8 text-center">
+                        <h2 class="display-5 fw-bold mb-4">Features</h2>
+                        <div class="row row-cols-1 row-cols-md-2 g-4">
+                            <div class="col">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Add Books</h5>
+                                        <p class="card-text">Easily add new books to your library with all the details.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Update Details</h5>
+                                        <p class="card-text">Edit book information whenever needed without hassle.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Track Availability</h5>
+                                        <p class="card-text">Keep track of which books are available or checked out.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-body">
+                                        <h5 class="card-title">User Roles</h5>
+                                        <p class="card-text">Secure login with roles such as Admin and User.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact / Call to Action Section -->
+            <section id="contact" class="mb-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 text-center">
+                        <h2 class="display-5 fw-bold mb-3">Get Started</h2>
+                        <p class="lead text-muted mb-4">Sign in as an admin to start adding and managing books!</p>
+                        <a href="#!/login" class="btn btn-primary btn-lg">Login</a>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+    </div>
