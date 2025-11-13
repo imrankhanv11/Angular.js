@@ -1,22 +1,31 @@
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-    <a class="navbar-brand" href="#!/">MyApp</a>
+<div ng-controller="NavbarController as nav">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+        <a class="navbar-brand" href="#!/">MyApp</a>
 
-    <!-- Toggle button for mobile -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+        <!-- Toggle button for mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-    <!-- Nav links -->
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="#!/">Home</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#!/login">Login</a>
-            </li>
-        </ul>
-    </div>
-</nav>
+        <!-- Nav links -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto d-flex">
+                <!-- Home is always visible -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#!/">Home</a>
+                </li>
+
+                <!-- Only show Login when NOT logged in -->
+                <li class="nav-item" ng-if="!nav.isLoggedIn()">
+                    <a class="nav-link" href="#!/login">Login</a>
+                </li>
+
+                <!-- Only show Logout when logged in -->
+                <li class="nav-item" ng-if="nav.isLoggedIn()">
+                    <button ng-click="nav.logout()" class="btn btn-danger btn-sm">LogOut</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</div>

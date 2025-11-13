@@ -9,7 +9,8 @@ gulp.task('scripts', function () {
         'main.js',
         './app/controller/**/**.js',
         './app/service/**.js',
-        './app/api/**.js'
+        './app/api/**.js',
+        './app/layouts/**/**.js'
     ])
         .pipe(concat('bundle.js'))
         .pipe(gulp.dest('dist'))
@@ -24,7 +25,8 @@ gulp.task('watch', function () {
         'main.js',
         './app/controller/**/**.js',
         './app/service/**.js',
-        './app/api/**.js'], gulp.series('scripts'));
+        './app/api/**.js',
+        './app/layouts/**/**.js'], gulp.series('scripts'));
 });
 
 gulp.task('default', gulp.series('scripts', 'watch'));

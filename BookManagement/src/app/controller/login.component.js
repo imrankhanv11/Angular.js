@@ -15,6 +15,8 @@
             password: ''
         };
 
+        vm.error = '';
+
         vm.login = function () {
             if (vm.loginForm && vm.loginForm.$invalid) {
                 angular.forEach(vm.loginForm, function (field, fieldName) {
@@ -28,9 +30,11 @@
             authService.login(vm.user)
                 .then(function () {
                     $location.path('/');
+                    vm.error = '';
                 })
                 .catch(function (error) {
                     console.error(error);
+                    vm.error = error;
                 });
         };
     }

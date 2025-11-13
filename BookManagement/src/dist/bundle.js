@@ -25,8 +25,35 @@ angular.module('myApp', ['ngRoute'])
         .module('myApp')
         .controller('HomeController', HomeController);
 
-    HomeController.$inject = [];
-    function HomeController() {
+    HomeController.$inject = ['authService', '$rootScope', '$scope', 'bookService'];
+    function HomeController(authService, $rootScope, $scope, bookService) {
+
+        $scope.books = [];
+
+        bookService.getBooks()
+            .then(function (data) {
+                $scope.books = data;
+            });
+
+        $scope.deleteBook = function (id) {
+            if (confirm("Do you Want to delete?")) {
+                bookService.deleteBook(id).then(function (data) {
+                    $scope.books = data;
+                });
+            }
+        };
+
+        $scope.isLoggedIn = function () {
+            return authService.isAuthenticated();
+        };
+
+        // var deregister = $rootScope.$on('authChanged', function (event, status) {
+        //     home.loggedIn = status;
+        // });
+
+        // $scope.$on('$destroy', function () {
+        //     deregister();
+        // });
     }
 })();
 (function () {
@@ -46,6 +73,8 @@ angular.module('myApp', ['ngRoute'])
             password: ''
         };
 
+        vm.error = '';
+
         vm.login = function () {
             if (vm.loginForm && vm.loginForm.$invalid) {
                 angular.forEach(vm.loginForm, function (field, fieldName) {
@@ -59,9 +88,11 @@ angular.module('myApp', ['ngRoute'])
             authService.login(vm.user)
                 .then(function () {
                     $location.path('/');
+                    vm.error = '';
                 })
                 .catch(function (error) {
                     console.error(error);
+                    vm.error = error;
                 });
         };
     }
@@ -72,27 +103,28 @@ angular.module('myApp', ['ngRoute'])
 
     angular
         .module('myApp')
-        .service('authService', function ($http, $window) {
+        .service('authService', function ($http, $window, $rootScope) {
 
             const baseUrl = 'http://localhost:5007/api';
 
             this.login = function (credentials) {
                 return $http.post(`${baseUrl}/Login/LoginUser`, credentials)
-                    .then(function (response) {
+                    .then((response) => {
                         if (response.data) {
                             $window.localStorage.setItem('accessToken', response.data.accessToken);
+                            // $rootScope.$broadcast('authChanged', true);
                         }
                         return response.data;
                     })
-                    .catch(function (error) {
-                        console.error('Login failed:', error);
-                        throw error;
+                    .catch((error) => {
+                        throw error.data.message;
                     });
             };
 
-            this.saveToken = function (token) {
-                $window.localStorage.setItem('accessToken', token);
-            };
+            // this.saveToken = function (token) {
+            //     $window.localStorage.setItem('accessToken', token);
+            //     // $rootScope.$broadcast('authChanged', true);
+            // };
 
             this.getToken = function () {
                 return $window.localStorage.getItem('accessToken');
@@ -104,6 +136,7 @@ angular.module('myApp', ['ngRoute'])
 
             this.logout = function () {
                 $window.localStorage.removeItem('accessToken');
+                // $rootScope.$broadcast('authChanged', false);
             };
         });
 })();
@@ -113,18 +146,61 @@ angular.module('myApp', ['ngRoute'])
 
     angular
         .module('myApp')
+        .service('bookService', bookService);
+
+    bookService.$inject = ['$http'];
+    function bookService($http) {
+        const baseUrl = 'http://localhost:5007/api';
+
+        var state = {
+            books: []
+        };
+
+        this.state = state;
+
+        this.getBooks = function () {
+            return $http.get(`${baseUrl}/Books/GellAllBooks`)
+                .then((response) => {
+                    state.books = response.data;
+                    return state.books;
+                })
+                .catch((error) => {
+                    console.error('Error fetching books:', error);
+                    throw error;
+                });
+        };
+
+        this.deleteBook = function (id) {
+            return $http.delete(`${baseUrl}/Books/DeleteBook/${id}`)
+                .then(() => {
+                    state.books = state.books.filter(book => book.bookId !== id);
+                    return state.books;
+                })
+                .catch((error) => {
+                    console.error('Error deleting book:', error);
+                    throw error;
+                });
+        };
+    }
+})();
+
+(function () {
+    'use strict';
+
+    angular
+        .module('myApp')
         .factory('authInterceptor', authInterceptor);
 
-    authInterceptor.$inject = ['$q', '$window', '$location'];
+    authInterceptor.$inject = ['$q', '$window', '$location', '$injector'];
 
-    function authInterceptor($q, $window, $location) {
+    function authInterceptor($q, $window, $location, $injector) {
         return {
             request: function (config) {
                 if (config.url.endsWith('.html')) {
                     return config;
                 }
 
-                const token = $window.localStorage.getItem('token');
+                const token = $window.localStorage.getItem('accessToken');
                 if (token) {
                     config.headers.Authorization = `Bearer ${token}`;
                 }
@@ -134,10 +210,37 @@ angular.module('myApp', ['ngRoute'])
 
             responseError: function (response) {
                 if (response.status === 401) {
+                    const authService = $injector.get('authService');
+                    authService.logout();
+
                     $location.path('/login');
                 }
+
                 return $q.reject(response);
             }
+        };
+    }
+})();
+
+(function () {
+    'use strict';
+
+    angular
+        .module('myApp')
+        .controller('NavbarController', NavbarController);
+
+    NavbarController.$inject = ['authService', '$location'];
+
+    function NavbarController(authService, $location) {
+        var nav4 = this;
+
+        nav4.isLoggedIn = function () {
+            return authService.isAuthenticated();
+        };
+
+        nav4.logout = function () {
+            authService.logout();
+            $location.path('/login');
         };
     }
 })();

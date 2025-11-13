@@ -1,0 +1,42 @@
+(function () {
+    'use strict';
+
+    angular
+        .module('myApp')
+        .service('bookService', bookService);
+
+    bookService.$inject = ['$http'];
+    function bookService($http) {
+        const baseUrl = 'http://localhost:5007/api';
+
+        var state = {
+            books: []
+        };
+
+        this.state = state;
+
+        this.getBooks = function () {
+            return $http.get(`${baseUrl}/Books/GellAllBooks`)
+                .then((response) => {
+                    state.books = response.data;
+                    return state.books;
+                })
+                .catch((error) => {
+                    console.error('Error fetching books:', error);
+                    throw error;
+                });
+        };
+
+        this.deleteBook = function (id) {
+            return $http.delete(`${baseUrl}/Books/DeleteBook/${id}`)
+                .then(() => {
+                    state.books = state.books.filter(book => book.bookId !== id);
+                    return state.books;
+                })
+                .catch((error) => {
+                    console.error('Error deleting book:', error);
+                    throw error;
+                });
+        };
+    }
+})();
