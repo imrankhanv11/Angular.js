@@ -59,6 +59,29 @@ angular.module('myApp')
                     }
                 }
             })
+            .when('/addbook/:id', {
+                templateUrl: 'app/view/bookAdd.html',
+                controller: 'BookAddController',
+                controllerAs: 'vm',
+                resolve: {
+                    auth: function ($q, $location, authService, tokenService) {
+                        if (!authService.isAuthenticated()) {
+                            $location.path('/login');
+                            return $q.reject('Not authenticated');
+                        }
+
+                        const decoded = tokenService.decode();
+                        const role = decoded ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] : null;
+
+                        if (role === 'SPAdmin' || role === 'Admin') {
+                            return true;
+                        } else {
+                            $location.path('/unauthorized');
+                            return $q.reject('Not authorized');
+                        }
+                    }
+                }
+            })
             // use page
             .when('/userbook', {
                 templateUrl: 'app/view/userBookPage.html',

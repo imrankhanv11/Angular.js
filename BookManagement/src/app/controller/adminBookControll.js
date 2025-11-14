@@ -5,8 +5,8 @@
         .module('myApp')
         .controller('AdminBookController', AdminBookController);
 
-    AdminBookController.$inject = ['$scope', 'bookService'];
-    function AdminBookController($scope, bookService) {
+    AdminBookController.$inject = ['$scope', 'bookService', '$location'];
+    function AdminBookController($scope, bookService, $location) {
 
         $scope.books = [];
 
@@ -22,5 +22,9 @@
                 });
             }
         };
+
+        $scope.editBook = function (id) {
+            $location.path('addbook/' + id);
+        }
     }
 })();

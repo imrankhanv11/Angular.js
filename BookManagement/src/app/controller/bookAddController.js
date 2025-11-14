@@ -6,8 +6,8 @@
         .module('myApp')
         .controller('BookAddController', BookAddController);
 
-    BookAddController.$inject = ['$http', 'bookService','$location'];
-    function BookAddController($http, bookService, $location) {
+    BookAddController.$inject = ['$http', 'bookService', '$location', '$routeParams'];
+    function BookAddController($http, bookService, $location, $routeParams) {
         var vm = this;
 
         vm.book = {
@@ -18,6 +18,8 @@
             categoryId: ''
         };
 
+        vm.isEditMode = false;
+
         vm.error = '';
         vm.category = [];
 
@@ -25,6 +27,16 @@
             .then((response) => {
                 vm.category = response.data;
             });
+
+        if ($routeParams.id) {
+            vm.isEditMode = true;
+            const updateBook = bookService.getBookById(Number($routeParams.id));
+            vm.book.title = updateBook.title;
+            vm.book.author = updateBook.author;
+            vm.book.price = updateBook.price;
+            vm.book.stock = updateBook.stock;
+            vm.book.categoryId = updateBook.categoryId;
+        }
 
         vm.AddBook = function () {
             if (vm.addBookForm && vm.addBookForm.$invalid) {
@@ -36,11 +48,20 @@
                 return;
             }
 
-            bookService.addBook(vm.book)
-                .then(() => {
-                    $location.path('/');
-                })
-                .catch((error) => console.log(error));
+            if (vm.isEditMode) {
+                bookService.updateBook({ ...vm.book, Id: Number($routeParams.id) })
+                    .then(() => {
+                        $location.path('/');
+                    })
+                    .catch((error) => console.log(error));
+            }
+            else {
+                bookService.addBook(vm.book)
+                    .then(() => {
+                        $location.path('/');
+                    })
+                    .catch((error) => console.log(error));
+            }
         };
     }
 })();

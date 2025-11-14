@@ -73,8 +73,8 @@ angular.module('myApp', ['ngRoute']);
   'use strict';
 
   angular.module('myApp').controller('AdminBookController', AdminBookController);
-  AdminBookController.$inject = ['$scope', 'bookService'];
-  function AdminBookController($scope, bookService) {
+  AdminBookController.$inject = ['$scope', 'bookService', '$location'];
+  function AdminBookController($scope, bookService, $location) {
     $scope.books = [];
     bookService.getBooks().then(function (data) {
       $scope.books = data;
@@ -86,16 +86,25 @@ angular.module('myApp', ['ngRoute']);
         });
       }
     };
+    $scope.editBook = function (id) {
+      $location.path('addbook/' + id);
+    };
   }
 })();
 "use strict";
 
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 (function () {
   'use strict';
 
   angular.module('myApp').controller('BookAddController', BookAddController);
-  BookAddController.$inject = ['$http', 'bookService', '$location'];
-  function BookAddController($http, bookService, $location) {
+  BookAddController.$inject = ['$http', 'bookService', '$location', '$routeParams'];
+  function BookAddController($http, bookService, $location, $routeParams) {
     var vm = this;
     vm.book = {
       title: '',
@@ -104,11 +113,21 @@ angular.module('myApp', ['ngRoute']);
       stock: '',
       categoryId: ''
     };
+    vm.isEditMode = false;
     vm.error = '';
     vm.category = [];
     $http.get("http://localhost:5007/api/Categorys/GetAllCategory").then(function (response) {
       vm.category = response.data;
     });
+    if ($routeParams.id) {
+      vm.isEditMode = true;
+      var updateBook = bookService.getBookById(Number($routeParams.id));
+      vm.book.title = updateBook.title;
+      vm.book.author = updateBook.author;
+      vm.book.price = updateBook.price;
+      vm.book.stock = updateBook.stock;
+      vm.book.categoryId = updateBook.categoryId;
+    }
     vm.AddBook = function () {
       if (vm.addBookForm && vm.addBookForm.$invalid) {
         angular.forEach(vm.addBookForm, function (field, fieldName) {
@@ -118,11 +137,21 @@ angular.module('myApp', ['ngRoute']);
         });
         return;
       }
-      bookService.addBook(vm.book).then(function () {
-        $location.path('/');
-      })["catch"](function (error) {
-        return console.log(error);
-      });
+      if (vm.isEditMode) {
+        bookService.updateBook(_objectSpread(_objectSpread({}, vm.book), {}, {
+          Id: Number($routeParams.id)
+        })).then(function () {
+          $location.path('/');
+        })["catch"](function (error) {
+          return console.log(error);
+        });
+      } else {
+        bookService.addBook(vm.book).then(function () {
+          $location.path('/');
+        })["catch"](function (error) {
+          return console.log(error);
+        });
+      }
     };
   }
 })();
@@ -237,6 +266,26 @@ angular.module('myApp').config(function ($routeProvider, $httpProvider) {
         }
       }
     }
+  }).when('/addbook/:id', {
+    templateUrl: 'app/view/bookAdd.html',
+    controller: 'BookAddController',
+    controllerAs: 'vm',
+    resolve: {
+      auth: function auth($q, $location, authService, tokenService) {
+        if (!authService.isAuthenticated()) {
+          $location.path('/login');
+          return $q.reject('Not authenticated');
+        }
+        var decoded = tokenService.decode();
+        var role = decoded ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] : null;
+        if (role === 'SPAdmin' || role === 'Admin') {
+          return true;
+        } else {
+          $location.path('/unauthorized');
+          return $q.reject('Not authorized');
+        }
+      }
+    }
   })
   // use page
   .when('/userbook', {
@@ -315,12 +364,25 @@ angular.module('myApp').config(function ($routeProvider, $httpProvider) {
     };
     this.state = state;
     var baseUrl = "http://localhost:5007/api/";
+    this.getBookById = function (id) {
+      return state.books.find(function (s) {
+        return s.bookId === id;
+      });
+    };
     this.getBooks = function () {
       return $http.get("".concat(baseUrl, "Books/GellAllBooks")).then(function (response) {
         state.books = response.data;
         return state.books;
       })["catch"](function (error) {
         console.error('Error fetching books:', error);
+        throw error;
+      });
+    };
+    this.updateBook = function (data) {
+      return $http.put("".concat(baseUrl, "Books/UpdateBook"), data).then(function () {
+        updateBookInState(data);
+      })["catch"](function (error) {
+        console.error('Error deleting book:', error);
         throw error;
       });
     };
@@ -344,6 +406,14 @@ angular.module('myApp').config(function ($routeProvider, $httpProvider) {
         throw error;
       });
     };
+    function updateBookInState(updatedBook) {
+      var index = state.books.findIndex(function (b) {
+        return b.bookId === updatedBook.Id;
+      });
+      if (index !== -1) {
+        state.books[index] = updatedBook;
+      }
+    }
   }
 })();
 "use strict";
