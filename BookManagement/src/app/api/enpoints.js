@@ -17,6 +17,10 @@
                 LOGIN: "/Login/LoginUser",
                 REGISTER: "/Login/RegisterUser",
                 REFRESH: "/Login/RefreshToken"
+            },
+
+            CAT:{
+                GET_ALL: "/Categorys/GetAllCategory",
             }
         });
 

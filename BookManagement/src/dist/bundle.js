@@ -16,7 +16,11 @@ angular.module('myApp', ['ngRoute']);
     },
     USER: {
       LOGIN: "/Login/LoginUser",
-      REGISTER: "/Login/RegisterUser"
+      REGISTER: "/Login/RegisterUser",
+      REFRESH: "/Login/RefreshToken"
+    },
+    CAT: {
+      GET_ALL: "/Categorys/GetAllCategory"
     }
   });
 })();
@@ -26,8 +30,8 @@ angular.module('myApp', ['ngRoute']);
   'use strict';
 
   angular.module('myApp').factory('authInterceptor', authInterceptor);
-  authInterceptor.$inject = ['$q', '$window', '$location', '$injector'];
-  function authInterceptor($q, $window, $location, $injector) {
+  authInterceptor.$inject = ['$q', '$window', '$location', '$injector', 'Endpoints'];
+  function authInterceptor($q, $window, $location, $injector, Endpoints) {
     var refreshingToken = false;
     var requestQueue = [];
     return {
@@ -48,7 +52,7 @@ angular.module('myApp', ['ngRoute']);
             handleLogout($injector, $location);
             return $q.reject(response);
           }
-          return $http.post('http://localhost:5007/api/Login/RefreshToken', {
+          return $http.post("".concat(Endpoints.BASE_URL).concat(Endpoints.USER.REFRESH), {
             refreshToken: refreshToken
           }).then(function (res) {
             var newToken = res.data.accessToken;
@@ -108,6 +112,28 @@ angular.module('myApp', ['ngRoute']);
     $scope.editBook = function (id) {
       $location.path('addbook/' + id);
     };
+  }
+})();
+"use strict";
+
+(function () {
+  'use strict';
+
+  angular.module('myApp').component('appAdmincat', {
+    templateUrl: 'app/view/adminCatPage.html',
+    controller: AdminCatController,
+    controllerAs: '$ctrl',
+    bindings: {
+      Binding: '='
+    }
+  });
+  AdminCatController.$inject = ['CatService'];
+  function AdminCatController(CatService) {
+    var $ctrl = this;
+    $ctrl.Cat = [];
+    CatService.getCat().then(function (data) {
+      $ctrl.Cat = data;
+    });
   }
 })();
 "use strict";
@@ -249,6 +275,13 @@ angular.module('myApp').config(function ($routeProvider, $httpProvider) {
     templateUrl: 'app/view/adminBookPage.html',
     controller: 'AdminBookController',
     controllerAs: 'vm',
+    resolve: {
+      auth: function auth(authGuard) {
+        authGuard.adminOnly();
+      }
+    }
+  }).when('/admincat', {
+    template: '<app-admincat></app-admincat>',
     resolve: {
       auth: function auth(authGuard) {
         authGuard.adminOnly();
@@ -415,6 +448,29 @@ angular.module('myApp').factory('authGuard', function ($q, $location, authServic
         state.books[index] = updatedBook;
       }
     }
+  }
+})();
+"use strict";
+
+(function () {
+  'use strict';
+
+  angular.module('myApp').service('CatService', CatService);
+  CatService.$inject = ['$http', 'Endpoints'];
+  function CatService($http, Endpoints) {
+    var state = {
+      Cat: []
+    };
+    this.state = state;
+    this.getCat = function () {
+      return $http.get("".concat(Endpoints.BASE_URL).concat(Endpoints.CAT.GET_ALL)).then(function (response) {
+        state.Cat = response.data;
+        return state.Cat;
+      })["catch"](function (error) {
+        console.error('Error fetching Cat:', error);
+        throw error;
+      });
+    };
   }
 })();
 "use strict";

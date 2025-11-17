@@ -23,6 +23,14 @@ angular.module('myApp')
                     }
                 }
             })
+            .when('/admincat', {
+                template: '<app-admincat></app-admincat>',
+                resolve: {
+                    auth: function (authGuard) {
+                        authGuard.adminOnly()
+                    }
+                }
+            })
             .when('/addbook', {
                 templateUrl: 'app/view/bookAdd.html',
                 controller: 'BookAddController',

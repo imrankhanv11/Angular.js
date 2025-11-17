@@ -1,0 +1,29 @@
+<div class="container">
+    <h4 class="mt-2 mb-2">Category List</h4>
+    <table class="table table-bordered table-striped text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>S.No.</th>
+                <th>Title</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="cato in $ctrl.Cat">
+                <td>{{$index + 1}}</td>
+                <td>{{ cato.categoryName }}</td>
+                <td>
+                    <div class="d-flex justify-content-around">
+                        <button class="btn btn-sm btn-info rounded-2 text-black" ng-click="editBook(book.bookId)">
+                            <i class="fa fa-edit"></i> Edit
+                        </button>
+
+                        <button class="btn btn-sm btn-danger rounded-2 text-black" ng-click="deleteBook(book.bookId)">
+                            <i class="fa fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

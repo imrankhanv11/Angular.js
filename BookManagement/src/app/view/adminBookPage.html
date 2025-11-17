@@ -22,9 +22,10 @@
                 <td>{{ book.price }}</td>
                 <td>
                     <div class="d-flex justify-content-around">
-                        <button class="btn btn-sm btn-info rounded-2 text-black" ng-click="editBook(book.bookId)">Edit</button>
-                        <button class="btn btn-sm btn-danger rounded-2 text-black"
-                            ng-click="deleteBook(book.bookId)">Delete</button>
+                        <button class="btn btn-sm btn-info rounded-2 text-black" ng-click="editBook(book.bookId)"> <i
+                                class="fa fa-edit"></i> Edit</button>
+                        <button class="btn btn-sm btn-danger rounded-2 text-black" ng-click="deleteBook(book.bookId)"><i
+                                class="fa fa-trash"></i> Delete</button>
                     </div>
                 </td>
             </tr>
