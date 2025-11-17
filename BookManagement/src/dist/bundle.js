@@ -6,6 +6,26 @@ angular.module('myApp', ['ngRoute']);
 (function () {
   'use strict';
 
+  angular.module('myApp').constant('Endpoints', {
+    BASE_URL: "http://localhost:5007/api/",
+    BOOK: {
+      GET_ALL: "Books/GetAllBooks",
+      GET_BY_ID: "Books/GetBookById/",
+      CREATE: "Books/AddBook",
+      UPDATE: "Books/UpdateBook",
+      DELETE: "Books/DeleteBook/"
+    },
+    USER: {
+      LOGIN: "Auth/Login",
+      REGISTER: "Auth/Register"
+    }
+  });
+})();
+"use strict";
+
+(function () {
+  'use strict';
+
   angular.module('myApp').factory('authInterceptor', authInterceptor);
   authInterceptor.$inject = ['$q', '$window', '$location', '$injector'];
   function authInterceptor($q, $window, $location, $injector) {
@@ -231,19 +251,8 @@ angular.module('myApp').config(function ($routeProvider, $httpProvider) {
     controller: 'AdminBookController',
     controllerAs: 'vm',
     resolve: {
-      auth: function auth($q, $location, authService, tokenService) {
-        if (!authService.isAuthenticated()) {
-          $location.path('/login');
-          return $q.reject('Not authenticated');
-        }
-        var decoded = tokenService.decode();
-        var role = decoded ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] : null;
-        if (role === 'SPAdmin' || role === 'Admin') {
-          return true;
-        } else {
-          $location.path('/unauthorized');
-          return $q.reject('Not authorized');
-        }
+      auth: function auth(authGuard) {
+        authGuard.adminOnly();
       }
     }
   }).when('/addbook', {
@@ -251,19 +260,8 @@ angular.module('myApp').config(function ($routeProvider, $httpProvider) {
     controller: 'BookAddController',
     controllerAs: 'vm',
     resolve: {
-      auth: function auth($q, $location, authService, tokenService) {
-        if (!authService.isAuthenticated()) {
-          $location.path('/login');
-          return $q.reject('Not authenticated');
-        }
-        var decoded = tokenService.decode();
-        var role = decoded ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] : null;
-        if (role === 'SPAdmin' || role === 'Admin') {
-          return true;
-        } else {
-          $location.path('/unauthorized');
-          return $q.reject('Not authorized');
-        }
+      auth: function auth(authGuard) {
+        authGuard.adminOnly();
       }
     }
   }).when('/addbook/:id', {
@@ -271,19 +269,8 @@ angular.module('myApp').config(function ($routeProvider, $httpProvider) {
     controller: 'BookAddController',
     controllerAs: 'vm',
     resolve: {
-      auth: function auth($q, $location, authService, tokenService) {
-        if (!authService.isAuthenticated()) {
-          $location.path('/login');
-          return $q.reject('Not authenticated');
-        }
-        var decoded = tokenService.decode();
-        var role = decoded ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] : null;
-        if (role === 'SPAdmin' || role === 'Admin') {
-          return true;
-        } else {
-          $location.path('/unauthorized');
-          return $q.reject('Not authorized');
-        }
+      auth: function auth(authGuard) {
+        authGuard.adminOnly();
       }
     }
   })
@@ -293,19 +280,8 @@ angular.module('myApp').config(function ($routeProvider, $httpProvider) {
     controller: 'UserBookController',
     controllerAs: 'vm',
     resolve: {
-      auth: function auth($q, $location, authService, tokenService) {
-        if (!authService.isAuthenticated()) {
-          $location.path('/login');
-          return $q.reject('Not authenticated');
-        }
-        var decoded = tokenService.decode();
-        var role = decoded ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] : null;
-        if (role === 'User') {
-          return true;
-        } else {
-          $location.path('/unauthorized');
-          return $q.reject('Not authorized');
-        }
+      auth: function auth(authGuard) {
+        authGuard.userOnly();
       }
     }
   })
@@ -318,6 +294,34 @@ angular.module('myApp').config(function ($routeProvider, $httpProvider) {
     redirectTo: '/'
   });
   $httpProvider.interceptors.push('authInterceptor');
+});
+"use strict";
+
+angular.module('myApp').factory('authGuard', function ($q, $location, authService, tokenService) {
+  function checkRole(allowedRoles) {
+    if (!authService.isAuthenticated()) {
+      $location.path('/login');
+      return $q.reject('Not authenticated');
+    }
+    var decoded = tokenService.decode();
+    var role = decoded ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] : null;
+    if (allowedRoles.includes(role)) {
+      return true;
+    }
+    $location.path('/unauthorized');
+    return $q.reject('Not authorized');
+  }
+  return {
+    adminOnly: function adminOnly() {
+      return checkRole(['Admin', 'SPAdmin']);
+    },
+    userOnly: function userOnly() {
+      return checkRole(['User']);
+    },
+    any: function any(roles) {
+      return checkRole(roles);
+    }
+  };
 });
 "use strict";
 
