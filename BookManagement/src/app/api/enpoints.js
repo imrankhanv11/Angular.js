@@ -15,7 +15,8 @@
 
             USER: {
                 LOGIN: "/Login/LoginUser",
-                REGISTER: "/Login/RegisterUser"
+                REGISTER: "/Login/RegisterUser",
+                REFRESH: "/Login/RefreshToken"
             }
         });
 

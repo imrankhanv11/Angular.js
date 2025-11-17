@@ -5,9 +5,9 @@
         .module('myApp')
         .factory('authInterceptor', authInterceptor);
 
-    authInterceptor.$inject = ['$q', '$window', '$location', '$injector'];
+    authInterceptor.$inject = ['$q', '$window', '$location', '$injector', 'Endpoints'];
 
-    function authInterceptor($q, $window, $location, $injector) {
+    function authInterceptor($q, $window, $location, $injector, Endpoints) {
         let refreshingToken = false;
         let requestQueue = [];
 
@@ -34,7 +34,7 @@
                         return $q.reject(response);
                     }
 
-                    return $http.post('http://localhost:5007/api/Login/RefreshToken', {
+                    return $http.post(`${Endpoints.BASE_URL}${Endpoints.USER.REFRESH}`, {
                         refreshToken: refreshToken
                     })
                         .then(res => {
