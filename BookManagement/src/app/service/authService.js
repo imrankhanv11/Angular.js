@@ -4,12 +4,10 @@
 
     angular
         .module('myApp')
-        .service('authService', function ($http, $window, $rootScope) {
-
-            const baseUrl = `http://localhost:5007/api/`;
+        .service('authService', function ($http, $window, $rootScope, Endpoints) {
 
             this.login = function (credentials) {
-                return $http.post(`${baseUrl}Login/LoginUser`, credentials)
+                return $http.post(`${Endpoints.BASE_URL}${Endpoints.USER.LOGIN}`, credentials)
                     .then((response) => {
                         if (response.data) {
                             $window.localStorage.setItem('accessToken', response.data.accessToken);

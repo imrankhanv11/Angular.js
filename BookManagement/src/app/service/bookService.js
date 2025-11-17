@@ -5,8 +5,8 @@
         .module('myApp')
         .service('bookService', bookService);
 
-    bookService.$inject = ['$http'];
-    function bookService($http) {
+    bookService.$inject = ['$http', 'Endpoints'];
+    function bookService($http, Endpoints) {
 
         var state = {
             books: []
@@ -14,14 +14,12 @@
 
         this.state = state;
 
-        const baseUrl = `http://localhost:5007/api/`;
-
         this.getBookById = function (id) {
             return state.books.find(s => s.bookId === id);
         }
 
         this.getBooks = function () {
-            return $http.get(`${baseUrl}Books/GellAllBooks`)
+            return $http.get(`${Endpoints.BASE_URL}${Endpoints.BOOK.GET_ALL}`)
                 .then((response) => {
                     state.books = response.data;
                     return state.books;
@@ -33,7 +31,7 @@
         };
 
         this.updateBook = function (data) {
-            return $http.put(`${baseUrl}Books/UpdateBook`, data)
+            return $http.put(`${Endpoints.BASE_URL}${Endpoints.BOOK.UPDATE}`, data)
                 .then(() => {
                     updateBookInState(data);
                 })
@@ -44,7 +42,7 @@
         }
 
         this.deleteBook = function (id) {
-            return $http.delete(`${baseUrl}Books/DeleteBook/${id}`)
+            return $http.delete(`${Endpoints.BASE_URL}${Endpoints.BOOK.DELETE}${id}`)
                 .then(() => {
                     state.books = state.books.filter(book => book.bookId !== id);
                     return state.books;
@@ -56,7 +54,7 @@
         };
 
         this.addBook = function (data) {
-            return $http.post(`${baseUrl}Books/AddBook`, data)
+            return $http.post(`${Endpoints.BASE_URL}${Endpoints.BOOK.CREATE}`, data)
                 .then(() => {
                     state.books.push(data);
                     return state.books;
