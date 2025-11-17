@@ -7,17 +7,16 @@ angular.module('myApp', ['ngRoute']);
   'use strict';
 
   angular.module('myApp').constant('Endpoints', {
-    BASE_URL: "http://localhost:5007/api/",
+    BASE_URL: "http://localhost:5007/api",
     BOOK: {
-      GET_ALL: "Books/GetAllBooks",
-      GET_BY_ID: "Books/GetBookById/",
-      CREATE: "Books/AddBook",
-      UPDATE: "Books/UpdateBook",
-      DELETE: "Books/DeleteBook/"
+      GET_ALL: "/Books/GellAllBooks",
+      CREATE: "/Books/AddBook",
+      UPDATE: "/Books/UpdateBook",
+      DELETE: "/Books/DeleteBook/"
     },
     USER: {
-      LOGIN: "Auth/Login",
-      REGISTER: "Auth/Register"
+      LOGIN: "/Login/LoginUser",
+      REGISTER: "/Login/RegisterUser"
     }
   });
 })();
@@ -328,10 +327,9 @@ angular.module('myApp').factory('authGuard', function ($q, $location, authServic
 (function () {
   'use strict';
 
-  angular.module('myApp').service('authService', function ($http, $window, $rootScope) {
-    var baseUrl = "http://localhost:5007/api/";
+  angular.module('myApp').service('authService', function ($http, $window, $rootScope, Endpoints) {
     this.login = function (credentials) {
-      return $http.post("".concat(baseUrl, "Login/LoginUser"), credentials).then(function (response) {
+      return $http.post("".concat(Endpoints.BASE_URL).concat(Endpoints.USER.LOGIN), credentials).then(function (response) {
         if (response.data) {
           $window.localStorage.setItem('accessToken', response.data.accessToken);
           $window.localStorage.setItem('refreshToken', response.data.refreshToken);
@@ -361,20 +359,19 @@ angular.module('myApp').factory('authGuard', function ($q, $location, authServic
   'use strict';
 
   angular.module('myApp').service('bookService', bookService);
-  bookService.$inject = ['$http'];
-  function bookService($http) {
+  bookService.$inject = ['$http', 'Endpoints'];
+  function bookService($http, Endpoints) {
     var state = {
       books: []
     };
     this.state = state;
-    var baseUrl = "http://localhost:5007/api/";
     this.getBookById = function (id) {
       return state.books.find(function (s) {
         return s.bookId === id;
       });
     };
     this.getBooks = function () {
-      return $http.get("".concat(baseUrl, "Books/GellAllBooks")).then(function (response) {
+      return $http.get("".concat(Endpoints.BASE_URL).concat(Endpoints.BOOK.GET_ALL)).then(function (response) {
         state.books = response.data;
         return state.books;
       })["catch"](function (error) {
@@ -383,7 +380,7 @@ angular.module('myApp').factory('authGuard', function ($q, $location, authServic
       });
     };
     this.updateBook = function (data) {
-      return $http.put("".concat(baseUrl, "Books/UpdateBook"), data).then(function () {
+      return $http.put("".concat(Endpoints.BASE_URL).concat(Endpoints.BOOK.UPDATE), data).then(function () {
         updateBookInState(data);
       })["catch"](function (error) {
         console.error('Error deleting book:', error);
@@ -391,7 +388,7 @@ angular.module('myApp').factory('authGuard', function ($q, $location, authServic
       });
     };
     this.deleteBook = function (id) {
-      return $http["delete"]("".concat(baseUrl, "Books/DeleteBook/").concat(id)).then(function () {
+      return $http["delete"]("".concat(Endpoints.BASE_URL).concat(Endpoints.BOOK.DELETE).concat(id)).then(function () {
         state.books = state.books.filter(function (book) {
           return book.bookId !== id;
         });
@@ -402,7 +399,7 @@ angular.module('myApp').factory('authGuard', function ($q, $location, authServic
       });
     };
     this.addBook = function (data) {
-      return $http.post("".concat(baseUrl, "Books/AddBook"), data).then(function () {
+      return $http.post("".concat(Endpoints.BASE_URL).concat(Endpoints.BOOK.CREATE), data).then(function () {
         state.books.push(data);
         return state.books;
       })["catch"](function (error) {
