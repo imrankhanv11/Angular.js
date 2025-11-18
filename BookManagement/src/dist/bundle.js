@@ -20,7 +20,8 @@ angular.module('myApp', ['ngRoute']);
       REFRESH: "/Login/RefreshToken"
     },
     CAT: {
-      GET_ALL: "/Categorys/GetAllCategory"
+      GET_ALL: "/Categorys/GetAllCategory",
+      DELETE: "/Categorys/DeleteCategory/"
     }
   });
 })();
@@ -134,6 +135,17 @@ angular.module('myApp', ['ngRoute']);
     CatService.getCat().then(function (data) {
       $ctrl.Cat = data;
     });
+    $ctrl.deleteCat = function (id) {
+      if (confirm("Do you Want to delete?")) {
+        CatService.deleteCat(id).then(function (data) {
+          $ctrl.Cat = data;
+        });
+      }
+    };
+    $ctrl.editCat = function (id) {
+      // $location.path('addbook/' + id);
+      console.log("Edited", id);
+    };
   }
 })();
 "use strict";
@@ -468,6 +480,17 @@ angular.module('myApp').factory('authGuard', function ($q, $location, authServic
         return state.Cat;
       })["catch"](function (error) {
         console.error('Error fetching Cat:', error);
+        throw error;
+      });
+    };
+    this.deleteCat = function (id) {
+      return $http["delete"]("".concat(Endpoints.BASE_URL).concat(Endpoints.CAT.DELETE).concat(id)).then(function () {
+        state.Cat = state.Cat.filter(function (s) {
+          return s.categoryId !== id;
+        });
+        return state.Cat;
+      })["catch"](function (error) {
+        console.error('Error in Delete Cat:', error);
         throw error;
       });
     };
