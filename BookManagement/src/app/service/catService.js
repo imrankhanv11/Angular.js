@@ -38,5 +38,17 @@
                     throw error;
                 });
         };
+
+        this.addCat = function (data) {
+            return $http.post(`${Endpoints.BASE_URL}${Endpoints.CAT.CREATE}`, data)
+                .then(() => {
+                    state.Cat.push(data);
+                    return state.Cat;
+                })
+                .catch((error) => {
+                    console.error('Error in Add Cat:', error);
+                    throw error;
+                });
+        }
     }
 })();

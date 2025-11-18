@@ -1,0 +1,24 @@
+<div>
+    <div class="my-5 d-flex justify-content-center">
+        <div class="card shadow-lg" style="width: 500px;">
+            <form novalidate ng-submit="$ctrl.formSubmit()" name="$ctrl.catFormAdd" class="p-2">
+                <div class="mt-2">
+                    <label for="categoryName" class="form-label">Category categoryName:</label>
+                    <input type="text" id="categoryName" class="form-control form-control-sm" ng-minlength="2" ng-maxlength="20"
+                        required ng-model="$ctrl.categoryName" name="categoryName"
+                        ng-class="{'is-invalid': $ctrl.catFormAdd.categoryName.$touched && $ctrl.catFormAdd.categoryName.$invalid}">
+
+                    <div class="text-danger mt-1"
+                        ng-if="$ctrl.catFormAdd.categoryName.$touched && $ctrl.catFormAdd.categoryName.$invalid">
+                        <small ng-if="$ctrl.catFormAdd.categoryName.$error.required">categoryName is required</small>
+                        <small ng-if="$ctrl.catFormAdd.categoryName.$error.minlength">categoryName must be at least 2
+                            characters</small>
+                        <small ng-if="$ctrl.catFormAdd.categoryName.$error.maxlength">categoryName cannot exceed 20
+                            characters</small>
+                    </div>
+                </div>
+                <button class="btn btn-success w-100 mt-2" type="submit">Add</button>
+            </form>
+        </div>
+    </div>
+</div>

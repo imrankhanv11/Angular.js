@@ -52,7 +52,9 @@
                         })
                         .catch(err => {
                             refreshingToken = false;
-                            handleLogout($injector, $location);
+                            if (err.status === 401) {
+                                handleLogout($injector, $location);
+                            }
                             return $q.reject(err);
                         });
                 }

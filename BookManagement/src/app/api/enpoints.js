@@ -22,6 +22,7 @@
             CAT:{
                 GET_ALL: "/Categorys/GetAllCategory",
                 DELETE :`/Categorys/DeleteCategory/`,
+                CREATE: `/Categorys/AddNewCategory`,
             }
         });
 
