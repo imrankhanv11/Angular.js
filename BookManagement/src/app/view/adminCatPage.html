@@ -14,11 +14,13 @@
                 <td>{{ cato.categoryName }}</td>
                 <td>
                     <div class="d-flex justify-content-around">
-                        <button class="btn btn-sm btn-info rounded-2 text-black" ng-click="editBook(book.bookId)">
+                        <button class="btn btn-sm btn-info rounded-2 text-black"
+                            ng-click="$ctrl.editCat(cato.categoryId)">
                             <i class="fa fa-edit"></i> Edit
                         </button>
 
-                        <button class="btn btn-sm btn-danger rounded-2 text-black" ng-click="deleteBook(book.bookId)">
+                        <button class="btn btn-sm btn-danger rounded-2 text-black"
+                            ng-click="$ctrl.deleteCat(cato.categoryId)">
                             <i class="fa fa-trash"></i> Delete
                         </button>
                     </div>
