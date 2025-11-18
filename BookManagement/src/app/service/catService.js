@@ -24,5 +24,19 @@
                     throw error;
                 });
         };
+
+        this.deleteCat = function (id) {
+            return $http.delete(`${Endpoints.BASE_URL}${Endpoints.CAT.DELETE}${id}`)
+                .then(() => {
+                    state.Cat = state.Cat.filter(s => {
+                        return s.categoryId !== id
+                    });
+                    return state.Cat;
+                })
+                .catch((error) => {
+                    console.error('Error in Delete Cat:', error);
+                    throw error;
+                });
+        };
     }
 })();
