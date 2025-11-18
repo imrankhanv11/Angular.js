@@ -13,6 +13,10 @@
 
         this.state = state;
 
+        this.getCatById = function (id) {
+            return state.Cat.find(s => s.categoryId === id);
+        }
+
         this.getCat = function () {
             return $http.get(`${Endpoints.BASE_URL}${Endpoints.CAT.GET_ALL}`)
                 .then((response) => {
@@ -49,6 +53,25 @@
                     console.error('Error in Add Cat:', error);
                     throw error;
                 });
+        }
+
+        this.updateCatName = function (data) {
+            return $http.put(`${Endpoints.BASE_URL}${Endpoints.CAT.UPDATE}`, data)
+                .then(() => {
+                    updateCatState(data);
+                })
+                .catch((error) => {
+                    console.error('Error deleting book:', error);
+                    throw error;
+                });
+        }
+
+        function updateCatState(updatedCat) {
+            const index = state.Cat.findIndex(b => b.categoryId === updatedCat.Id);
+
+            if (index !== -1) {
+                state.Cat[index] = updatedCat;
+            }
         }
     }
 })();

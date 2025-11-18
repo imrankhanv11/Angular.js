@@ -39,6 +39,14 @@ angular.module('myApp')
                     }
                 }
             })
+            .when('/catadd/:id', {
+                template: '<app-catadd></app-catadd>',
+                resolve: {
+                    auth: function (authGuard) {
+                        authGuard.adminOnly()
+                    }
+                }
+            })
             .when('/addbook', {
                 templateUrl: 'app/view/bookAdd.html',
                 controller: 'BookAddController',

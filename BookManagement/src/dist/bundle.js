@@ -21,7 +21,9 @@ angular.module('myApp', ['ngRoute']);
     },
     CAT: {
       GET_ALL: "/Categorys/GetAllCategory",
-      DELETE: "/Categorys/DeleteCategory/"
+      DELETE: "/Categorys/DeleteCategory/",
+      CREATE: "/Categorys/AddNewCategory",
+      UPDATE: "/Categorys/UpdateCategory"
     }
   });
 })();
@@ -68,7 +70,9 @@ angular.module('myApp', ['ngRoute']);
             return $http(newConfig);
           })["catch"](function (err) {
             refreshingToken = false;
-            handleLogout($injector, $location);
+            if (err.status === 401) {
+              handleLogout($injector, $location);
+            }
             return $q.reject(err);
           });
         } else if (response.status === 401 && refreshingToken) {
@@ -128,10 +132,11 @@ angular.module('myApp', ['ngRoute']);
       Binding: '='
     }
   });
-  AdminCatController.$inject = ['CatService'];
-  function AdminCatController(CatService) {
+  AdminCatController.$inject = ['CatService', '$location'];
+  function AdminCatController(CatService, $location) {
     var $ctrl = this;
     $ctrl.Cat = [];
+    $ctrl.isEditMode = false;
     CatService.getCat().then(function (data) {
       $ctrl.Cat = data;
     });
@@ -143,8 +148,7 @@ angular.module('myApp', ['ngRoute']);
       }
     };
     $ctrl.editCat = function (id) {
-      // $location.path('addbook/' + id);
-      console.log("Edited", id);
+      $location.path('catadd/' + id);
     };
   }
 })();
@@ -205,6 +209,60 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
       } else {
         bookService.addBook(vm.book).then(function () {
           $location.path('/');
+        })["catch"](function (error) {
+          return console.log(error);
+        });
+      }
+    };
+  }
+})();
+"use strict";
+
+(function () {
+  'use strict';
+
+  angular.module('myApp').component('appCatadd', {
+    templateUrl: 'app/view/catAdd.html',
+    controller: CatAddController,
+    controllerAs: '$ctrl',
+    bindings: {
+      Binding: '='
+    }
+  });
+  CatAddController.$inject = ['CatService', '$location', '$routeParams'];
+  function CatAddController(CatService, $location, $routeParams) {
+    var $ctrl = this;
+    $ctrl.categoryName = '';
+    $ctrl.isEditMode = false;
+    if ($routeParams.id) {
+      $ctrl.isEditMode = true;
+      var updateCat = CatService.getCatById(Number($routeParams.id));
+      $ctrl.categoryName = updateCat.categoryName;
+    }
+    $ctrl.formSubmit = function () {
+      if ($ctrl.catFormAdd && $ctrl.catFormAdd.$invalid) {
+        angular.forEach($ctrl.catFormAdd, function (field, fieldName) {
+          if (fieldName[0] !== '$' && field.$setTouched) {
+            field.$setTouched();
+          }
+        });
+        console.log("error");
+        return;
+      }
+      if ($ctrl.isEditMode) {
+        CatService.updateCatName({
+          categoryName: $ctrl.categoryName,
+          Id: Number($routeParams.id)
+        }).then(function () {
+          $location.path('/');
+        })["catch"](function (error) {
+          return console.log(error);
+        });
+      } else {
+        CatService.addCat({
+          categoryName: $ctrl.categoryName
+        }).then(function () {
+          $location.path('/admincat');
         })["catch"](function (error) {
           return console.log(error);
         });
@@ -294,6 +352,20 @@ angular.module('myApp').config(function ($routeProvider, $httpProvider) {
     }
   }).when('/admincat', {
     template: '<app-admincat></app-admincat>',
+    resolve: {
+      auth: function auth(authGuard) {
+        authGuard.adminOnly();
+      }
+    }
+  }).when('/catadd', {
+    template: '<app-catadd></app-catadd>',
+    resolve: {
+      auth: function auth(authGuard) {
+        authGuard.adminOnly();
+      }
+    }
+  }).when('/catadd/:id', {
+    template: '<app-catadd></app-catadd>',
     resolve: {
       auth: function auth(authGuard) {
         authGuard.adminOnly();
@@ -474,6 +546,11 @@ angular.module('myApp').factory('authGuard', function ($q, $location, authServic
       Cat: []
     };
     this.state = state;
+    this.getCatById = function (id) {
+      return state.Cat.find(function (s) {
+        return s.categoryId === id;
+      });
+    };
     this.getCat = function () {
       return $http.get("".concat(Endpoints.BASE_URL).concat(Endpoints.CAT.GET_ALL)).then(function (response) {
         state.Cat = response.data;
@@ -494,6 +571,31 @@ angular.module('myApp').factory('authGuard', function ($q, $location, authServic
         throw error;
       });
     };
+    this.addCat = function (data) {
+      return $http.post("".concat(Endpoints.BASE_URL).concat(Endpoints.CAT.CREATE), data).then(function () {
+        state.Cat.push(data);
+        return state.Cat;
+      })["catch"](function (error) {
+        console.error('Error in Add Cat:', error);
+        throw error;
+      });
+    };
+    this.updateCatName = function (data) {
+      return $http.put("".concat(Endpoints.BASE_URL).concat(Endpoints.CAT.UPDATE), data).then(function () {
+        updateCatState(data);
+      })["catch"](function (error) {
+        console.error('Error deleting book:', error);
+        throw error;
+      });
+    };
+    function updateCatState(updatedCat) {
+      var index = state.Cat.findIndex(function (b) {
+        return b.categoryId === updatedCat.Id;
+      });
+      if (index !== -1) {
+        state.Cat[index] = updatedCat;
+      }
+    }
   }
 })();
 "use strict";

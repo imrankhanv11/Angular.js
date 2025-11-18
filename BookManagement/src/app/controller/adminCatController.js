@@ -12,11 +12,12 @@
             },
         });
 
-    AdminCatController.$inject = ['CatService'];
-    function AdminCatController(CatService) {
+    AdminCatController.$inject = ['CatService','$location'];
+    function AdminCatController(CatService, $location) {
         var $ctrl = this;
 
         $ctrl.Cat = [];
+        $ctrl.isEditMode = false;
 
         CatService.getCat()
             .then(function (data) {
@@ -32,8 +33,7 @@
         };
 
         $ctrl.editCat = function (id) {
-            // $location.path('addbook/' + id);
-            console.log("Edited", id);
+            $location.path('catadd/' + id);
         }
     }
 })();
