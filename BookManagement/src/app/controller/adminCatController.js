@@ -22,5 +22,18 @@
             .then(function (data) {
                 $ctrl.Cat = data;
             })
+
+        $ctrl.deleteCat = function (id) {
+            if (confirm("Do you Want to delete?")) {
+                CatService.deleteCat(id).then(function (data) {
+                    $ctrl.Cat = data;
+                });
+            }
+        };
+
+        $ctrl.editCat = function (id) {
+            // $location.path('addbook/' + id);
+            console.log("Edited", id);
+        }
     }
 })();
